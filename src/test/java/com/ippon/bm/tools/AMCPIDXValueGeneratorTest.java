@@ -9,7 +9,7 @@ class AMCPIDXValueGeneratorTest {
 
     @Test
     void generatePIDs() throws Exception {
-        String keyHex = "12345678876543219ABCDEF00FEDCBA91234567887654321";
+        String keyHex = "12345678876543219ABCDEF00FEDCBA9";
         String vHex = "000ABC12";
         String[] PIDs = AMCPIDXValueGenerator.generatePIDs(keyHex, vHex);
 

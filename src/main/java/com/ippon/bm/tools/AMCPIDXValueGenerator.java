@@ -10,8 +10,10 @@ import org.apache.commons.lang3.StringUtils;
 public class AMCPIDXValueGenerator {
 
     public static String[] generatePIDs(String keyHex, String vHex) throws Exception {
-        byte[] keyBytes = hexStringToByteArray(keyHex);
-        SecretKey key = new SecretKeySpec(keyBytes, "DESede");
+        String tripleDesKeyHex = keyHex + keyHex.substring(0, 16);
+
+        byte[] tripleDesKeyBytes = hexStringToByteArray(tripleDesKeyHex);
+        SecretKey key = new SecretKeySpec(tripleDesKeyBytes, "DESede");
 
         BigInteger V = new BigInteger(vHex, 16); // Example unique value
         String[] PIDs = new String[35];
