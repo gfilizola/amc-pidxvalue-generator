@@ -23,6 +23,16 @@ class AMCPIDXValueGeneratorTest {
         System.out.println("Generated PIDs: " + Arrays.toString(PIDs));
         Arrays.stream(PIDs).forEach(System.out::println);
         assertThat(PIDs).isNotEmpty();
+        assertThat(PIDs[0]).isEqualTo("1EDEE43");
+        assertThat(PIDs[1]).isEqualTo("14C8CCC");
+        assertThat(PIDs[2]).isEqualTo("7406FB78");
+        assertThat(PIDs[3]).isEqualTo("A40CF9A1");
+        assertThat(PIDs[4]).isEqualTo("357194EC");
+        assertThat(PIDs[5]).isEqualTo("E693FC8A");
+        assertThat(PIDs[6]).isEqualTo("25102112");
+        assertThat(PIDs[7]).isEqualTo("B0F5586B");
+        assertThat(PIDs[8]).isEqualTo("CAFD8AFC");
+        assertThat(PIDs[9]).isEqualTo("963458A2");
     }
 
     private byte[] hexStringToByteArray(String s) {
