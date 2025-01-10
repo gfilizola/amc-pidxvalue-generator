@@ -4,6 +4,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import org.apache.commons.lang3.StringUtils;
 
 public class AMCPIDXValueGenerator {
 
@@ -14,25 +15,30 @@ public class AMCPIDXValueGenerator {
         BigInteger PR = V.and(new BigInteger("FFFF", 16));
 
         for (int sector = 1; sector <= 35; sector++) {
-            BigInteger currentPL = PL;
-            BigInteger currentPR = PR;
-
-            for (int n = 1; n <= 12; n++) {
-                BigInteger T = currentPR.shiftLeft(48).add(BigInteger.valueOf(sector).shiftLeft(32)).add(BigInteger.valueOf(n));
-                BigInteger F = TDESencryption(key, T).shiftRight(48);
-                BigInteger X = currentPL.xor(F);
-                currentPL = currentPR;
-                currentPR = X;
-            }
-
-            BigInteger pid = currentPL.shiftLeft(16).add(currentPR);
-            PIDs[sector - 1] = pid.toString(16).toUpperCase();
+            PIDs[sector - 1] = generateSectorPID(key, PL, PR, sector);
         }
 
         return PIDs;
     }
 
-    public static BigInteger TDESencryption(SecretKey key, BigInteger data) throws Exception {
+    public static String generateSectorPID(SecretKey key, BigInteger PL, BigInteger PR, int sector) throws Exception {
+        BigInteger currentPL = PL;
+        BigInteger currentPR = PR;
+
+        for (int n = 1; n <= 12; n++) {
+            BigInteger T = currentPR.shiftLeft(48).add(BigInteger.valueOf(sector).shiftLeft(32)).add(BigInteger.valueOf(n));
+            BigInteger F = TDESencryption(key, T).shiftRight(48);
+            BigInteger X = currentPL.xor(F);
+            currentPL = currentPR;
+            currentPR = X;
+        }
+
+        BigInteger pid = currentPL.shiftLeft(16).add(currentPR);
+        String pidHex = pid.toString(16).toUpperCase();
+        return StringUtils.leftPad(pidHex, 8, '0');
+    }
+
+    private static BigInteger TDESencryption(SecretKey key, BigInteger data) throws Exception {
         Cipher cipher = Cipher.getInstance("DESede/ECB/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE, key);
 
