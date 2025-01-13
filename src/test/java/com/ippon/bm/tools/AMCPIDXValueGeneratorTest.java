@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AMCPIDXValueGeneratorTest {
 
     @Test
-    void generatePIDs() throws Exception {
+    void shouldGeneratePIDsForSectorsFrom1To35() throws Exception {
         String keyHex = "12345678876543219ABCDEF00FEDCBA9";
         String vHex = "000ABC12";
         String[] PIDs = AMCPIDXValueGenerator.generatePIDs(keyHex, vHex);
@@ -16,6 +16,7 @@ class AMCPIDXValueGeneratorTest {
         System.out.println("Generated PIDs: " + Arrays.toString(PIDs));
         Arrays.stream(PIDs).forEach(System.out::println);
         assertThat(PIDs).isNotEmpty();
+        assertThat(PIDs).hasSize(35);
         assertThat(PIDs[0]).isEqualTo("01EDEE43");
         assertThat(PIDs[1]).isEqualTo("014C8CCC");
         assertThat(PIDs[2]).isEqualTo("7406FB78");
@@ -28,4 +29,13 @@ class AMCPIDXValueGeneratorTest {
         assertThat(PIDs[9]).isEqualTo("963458A2");
     }
 
+    @Test
+    void shouldGeneratePIDsForOneSector() throws Exception {
+        String keyHex = "12345678876543219ABCDEF00FEDCBA9";
+        String vHex = "000ABC12";
+        String PID = AMCPIDXValueGenerator.generateSectorPID(keyHex, vHex, 1);
+
+        System.out.println("Generated PID: " + PID);
+        assertThat(PID).isEqualTo("01EDEE43");
+    }
 }
