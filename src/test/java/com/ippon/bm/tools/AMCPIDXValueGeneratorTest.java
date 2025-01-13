@@ -2,7 +2,6 @@ package com.ippon.bm.tools;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import java.util.Arrays;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -23,8 +22,6 @@ class AMCPIDXValueGeneratorTest {
     void shouldGeneratePIDsForSectorsFrom1To35() throws Exception {
         String[] PIDs = amcPIDXValueGenerator.generatePIDs();
 
-        System.out.println("Generated PIDs: " + Arrays.toString(PIDs));
-        Arrays.stream(PIDs).forEach(System.out::println);
         assertThat(PIDs).isNotEmpty();
         assertThat(PIDs).hasSize(35);
         assertThat(PIDs[0]).isEqualTo("01EDEE43");
@@ -45,7 +42,9 @@ class AMCPIDXValueGeneratorTest {
     void shouldGeneratePIDForSector(int sector, String expectedPID) throws Exception {
         String PID = amcPIDXValueGenerator.generateSectorPID(sector);
 
-        System.out.println("Generated PID for sector " + sector + ": " + PID);
+        assertThat(PID).isNotNull();
+        assertThat(PID).hasSize(8);
+        assertThat(PID).matches("[0-9A-F]{8}");
         assertThat(PID).isEqualTo(expectedPID);
     }
 
