@@ -9,8 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 
 public class AMCPIDXValueGenerator {
 
-    public final String keyHex;
-    public final String vHex;
+    private final String keyHex;
+    private final String vHex;
 
     public AMCPIDXValueGenerator(String keyHex, String vHex) {
         this.keyHex = keyHex;
