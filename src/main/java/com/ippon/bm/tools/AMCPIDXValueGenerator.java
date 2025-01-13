@@ -10,51 +10,33 @@ import org.apache.commons.lang3.StringUtils;
 public class AMCPIDXValueGenerator {
 
     private final String keyHex;
-    private final String vHex;
+    private final BigInteger initialLeftHalfValue;
+    private final BigInteger initialRightHalfValue;
+    private final SecretKey secretKey;
 
     public AMCPIDXValueGenerator(String keyHex, String vHex) {
         this.keyHex = keyHex;
-        this.vHex = vHex;
+        BigInteger uniqueValue = new BigInteger(vHex, 16);
+        initialLeftHalfValue = uniqueValue.shiftRight(16);
+        initialRightHalfValue = uniqueValue.and(new BigInteger("FFFF", 16));
+        secretKey = getSecretKey();
     }
 
     public String[] generatePIDs() throws Exception {
         String[] PIDs = new String[35];
-
-        BigInteger V = new BigInteger(vHex, 16); // Unique value
-        BigInteger PL = V.shiftRight(16);
-        BigInteger PR = V.and(new BigInteger("FFFF", 16));
-
-        SecretKey key = getSecretKey();
         for (int sector = 1; sector <= 35; sector++) {
-            PIDs[sector - 1] = generateSectorPID(key, PL, PR, sector);
+            PIDs[sector - 1] = generateSectorPID(sector);
         }
-
         return PIDs;
     }
 
     public String generateSectorPID(int sector) throws Exception {
-        BigInteger V = new BigInteger(vHex, 16); // Unique value
-        BigInteger PL = V.shiftRight(16);
-        BigInteger PR = V.and(new BigInteger("FFFF", 16));
-        SecretKey key = getSecretKey();
-        return generateSectorPID(key, PL, PR, sector);
-    }
-
-    private SecretKey getSecretKey() {
-        String tripleDesKeyHex = keyHex + keyHex.substring(0, 16);
-
-        byte[] tripleDesKeyBytes = hexStringToByteArray(tripleDesKeyHex);
-        SecretKey key = new SecretKeySpec(tripleDesKeyBytes, "DESede");
-        return key;
-    }
-
-    private String generateSectorPID(SecretKey key, BigInteger PL, BigInteger PR, int sector) throws Exception {
-        BigInteger currentPL = PL;
-        BigInteger currentPR = PR;
+        BigInteger currentPL = initialLeftHalfValue;
+        BigInteger currentPR = initialRightHalfValue;
 
         for (int n = 1; n <= 12; n++) {
             BigInteger T = currentPR.shiftLeft(48).add(BigInteger.valueOf(sector).shiftLeft(32)).add(BigInteger.valueOf(n));
-            BigInteger F = TDESencryption(key, T).shiftRight(48);
+            BigInteger F = TDESencryption(secretKey, T).shiftRight(48);
             BigInteger X = currentPL.xor(F);
             currentPL = currentPR;
             currentPR = X;
@@ -63,6 +45,14 @@ public class AMCPIDXValueGenerator {
         BigInteger pid = currentPL.shiftLeft(16).add(currentPR);
         String pidHex = pid.toString(16).toUpperCase();
         return StringUtils.leftPad(pidHex, 8, '0');
+    }
+
+    private SecretKey getSecretKey() {
+        String tripleDesKeyHex = keyHex + keyHex.substring(0, 16);
+
+        byte[] tripleDesKeyBytes = hexStringToByteArray(tripleDesKeyHex);
+        SecretKey key = new SecretKeySpec(tripleDesKeyBytes, "DESede");
+        return key;
     }
 
     private byte[] hexStringToByteArray(String s) {

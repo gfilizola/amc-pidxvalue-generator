@@ -1,18 +1,26 @@
 package com.ippon.bm.tools;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class AMCPIDXValueGeneratorTest {
 
-    private final AMCPIDXValueGenerator amcPIDXValueGenerator = new AMCPIDXValueGenerator("12345678876543219ABCDEF00FEDCBA9", "000ABC12");
+    private static AMCPIDXValueGenerator amcPIDXValueGenerator;
+
+    @BeforeAll
+    static void setup() {
+        String keyHex = "12345678876543219ABCDEF00FEDCBA9";
+        String vHex = "000ABC12";
+        amcPIDXValueGenerator = new AMCPIDXValueGenerator(keyHex, vHex);
+    }
 
     @Test
     void shouldGeneratePIDsForSectorsFrom1To35() throws Exception {
-        String keyHex = "12345678876543219ABCDEF00FEDCBA9";
-        String vHex = "000ABC12";
         String[] PIDs = amcPIDXValueGenerator.generatePIDs();
 
         System.out.println("Generated PIDs: " + Arrays.toString(PIDs));
@@ -31,13 +39,14 @@ class AMCPIDXValueGeneratorTest {
         assertThat(PIDs[9]).isEqualTo("963458A2");
     }
 
-    @Test
-    void shouldGeneratePIDsForOneSector() throws Exception {
-        String keyHex = "12345678876543219ABCDEF00FEDCBA9";
-        String vHex = "000ABC12";
-        String PID = amcPIDXValueGenerator.generateSectorPID(1);
+    @ParameterizedTest
+    @CsvSource({"1, 01EDEE43", "2, 014C8CCC", "3, 7406FB78", "4, A40CF9A1", "5, 357194EC",
+            "6, E693FC8A", "7, 25102112", "8, B0F5586B", "9, CAFD8AFC", "10, 963458A2"})
+    void shouldGeneratePIDForSector(int sector, String expectedPID) throws Exception {
+        String PID = amcPIDXValueGenerator.generateSectorPID(sector);
 
-        System.out.println("Generated PID: " + PID);
-        assertThat(PID).isEqualTo("01EDEE43");
+        System.out.println("Generated PID for sector " + sector + ": " + PID);
+        assertThat(PID).isEqualTo(expectedPID);
     }
+
 }
